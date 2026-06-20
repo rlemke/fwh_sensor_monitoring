@@ -11,11 +11,11 @@ The example showcases:
 - Six deterministic-stub event-facet handlers backed by a shared
   ``tools/_lib/sensor`` library that's CLI-runnable standalone
 
-Discovered by the Facetwork runner via the ``facetwork.examples`` entry
+Discovered by the Facetwork runner via the ``facetwork.domains`` entry
 point declared in ``pyproject.toml``::
 
-    [project.entry-points."facetwork.examples"]
-    sensor-monitoring = "sensor_monitoring:example"
+    [project.entry-points."facetwork.domains"]
+    sensor-monitoring = "sensor_monitoring:domain"
 
 Once ``pip install -e .`` has been run from this repository, Facetwork's
 ``scripts/start-runner --example sensor-monitoring`` and
@@ -26,11 +26,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from facetwork.examples import ExamplePackage
+from facetwork.domains import DomainPackage
 
 from .handlers import register_all_registry_handlers
 
-example = ExamplePackage(
+domain = DomainPackage(
     name="sensor-monitoring",
     ffl_dir=Path(__file__).parent / "ffl",
     register_handlers=register_all_registry_handlers,

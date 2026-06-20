@@ -26,8 +26,8 @@ dev = [
 [project.urls]
 Repository = "https://github.com/rlemke/fwh_sensor_monitoring"
 
-[project.entry-points."facetwork.examples"]
-sensor-monitoring = "sensor_monitoring:example"
+[project.entry-points."facetwork.domains"]
+sensor-monitoring = "sensor_monitoring:domain"
 
 [tool.setuptools.packages.find]
 where = ["src"]
