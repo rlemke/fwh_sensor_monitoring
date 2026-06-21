@@ -1,0 +1,108 @@
+# Composability manifest for the sensor-monitoring package.
+#
+# Machine-readable index so an LLM can DISCOVER + REUSE these capabilities by
+# intent, the same way the platform's `fw_catalog_match` (workflow-level,
+# reuse-first) and `fw_capabilities` (facet-level capability index) tools work.
+#
+#   * `workflows` — entry-point facets, each with a natural-language `summary`
+#     (the kind of request it answers), `tags`, and a `param_schema` of the key
+#     parameters. Use these for reuse-first catalog matching: match an NL request
+#     against the summaries/tags before authoring anything new.
+#   * `facets` — a capability index of the core composable primitives by
+#     namespace, with `purpose`, `signature`, and the `effect`/`cost` taken
+#     verbatim from the `with Effect(...) / with Cost(...)` mixins in the FFL.
+#
+# Accurate qualified names + signatures are sourced from the .ffl
+# (`src/sensor_monitoring/ffl/monitor.ffl`); see
+# `sensor_monitoring.catalog.load_manifest()`.
+
+version: 1
+package: sensor-monitoring
+
+workflows:
+  - qualified_name: monitor.workflows.MonitorSensors
+    summary: >-
+      Monitor a single sensor reading end-to-end: ingest the raw reading,
+      validate/calibrate it, detect threshold anomalies (including negative
+      thresholds), classify any alert, run health diagnostics, and emit a
+      monitoring summary. The preferred entry point for "check / monitor one
+      sensor reading" requests.
+    tags: [sensor, monitoring, anomaly-detection, single-sensor, ingest, threshold, alert, diagnostics]
+    entry_point: true
+    param_schema:
+      sensor_id: String
+      value: Double
+      unit: String
+      sensor_configs: Json
+
+  - qualified_name: monitor.workflows.BatchMonitor
+    summary: >-
+      Batch-monitor multiple sensors in parallel via foreach: ingest a reading
+      per sensor id and detect anomalies against shared threshold config,
+      returning a batch summary. Use for monitoring many sensors at once;
+      use MonitorSensors for a single sensor end-to-end.
+    tags: [sensor, monitoring, anomaly-detection, batch, foreach, fanout, parallel]
+    entry_point: true
+    param_schema:
+      sensor_ids: Json
+      default_value: Double
+      unit: String
+
+facets:
+  # --- Ingestion -------------------------------------------------------------
+  - qualified_name: monitor.Ingestion.IngestReading
+    purpose: >-
+      Ingest a raw sensor reading (with optional last known value) into a
+      structured SensorReading, tagging quality as initial vs continuous.
+    signature: "IngestReading(sensor_id: String, value: Double, unit: String, last_reading: Json = null) => (reading: SensorReading, quality: String)"
+    effect: external
+    cost: cheap
+    namespace: monitor.Ingestion
+
+  - qualified_name: monitor.Ingestion.ValidateReading
+    purpose: >-
+      Validate a reading against sensor-specific config, applying calibration
+      offset/scale and range bounds; pure arithmetic over the inputs.
+    signature: "ValidateReading(reading: Json, sensor_config: Json) => (valid: Boolean, calibrated_value: Double)"
+    effect: pure
+    cost: free
+    namespace: monitor.Ingestion
+
+  # --- Analysis --------------------------------------------------------------
+  - qualified_name: monitor.Analysis.DetectAnomaly
+    purpose: >-
+      Detect anomalies by comparing a reading value against low/high and
+      critical-low/critical-high thresholds (negative thresholds supported),
+      returning severity and the breached boundary.
+    signature: "DetectAnomaly(reading: Json, threshold_low: Double, threshold_high: Double, critical_low: Double, critical_high: Double) => (result: AnomalyResult)"
+    effect: pure
+    cost: free
+    namespace: monitor.Analysis
+
+  - qualified_name: monitor.Analysis.ClassifyAlert
+    purpose: >-
+      Classify an anomaly into an alert payload — assign priority and routing
+      channel from a default or override priority mapping; pure lookup.
+    signature: "ClassifyAlert(anomaly: Json, sensor_id: String, override_config: Json = null) => (alert: AlertPayload)"
+    effect: pure
+    cost: free
+    namespace: monitor.Analysis
+
+  # --- Reporting -------------------------------------------------------------
+  - qualified_name: monitor.Reporting.RunDiagnostics
+    purpose: >-
+      Assemble a diagnostic report for a sensor — readings checked, anomalies
+      found, and derived health status (healthy/degraded); pure aggregation.
+    signature: "RunDiagnostics(sensor_id: String, anomaly_result: Json, reading: Json) => (report: DiagnosticReport)"
+    effect: pure
+    cost: cheap
+    namespace: monitor.Reporting
+
+  - qualified_name: monitor.Reporting.GenerateSummary
+    purpose: >-
+      Aggregate a diagnostic report and alert into a MonitoringSummary with
+      total/critical counts and a human-readable report line; pure aggregation.
+    signature: "GenerateSummary(sensor_id: String, diagnostic: Json, alert: Json) => (summary: MonitoringSummary)"
+    effect: pure
+    cost: free
+    namespace: monitor.Reporting

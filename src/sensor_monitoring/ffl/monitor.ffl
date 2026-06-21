@@ -97,7 +97,7 @@ namespace monitor.Ingestion {
         value: Double,
         unit: String,
         last_reading: Json = null
-    ) => (reading: SensorReading, quality: String) prompt {
+    ) => (reading: SensorReading, quality: String) with Effect(kind = "external") with Cost(tier = "cheap") prompt {
         system "You are a sensor ingestion agent that processes raw readings."
         template "Ingest reading from sensor {sensor_id}: value={value} {unit}, last={last_reading}"
         model "claude-sonnet-4-20250514"
@@ -107,7 +107,7 @@ namespace monitor.Ingestion {
     event facet ValidateReading(
         reading: Json,
         sensor_config: Json
-    ) => (valid: Boolean, calibrated_value: Double) prompt {
+    ) => (valid: Boolean, calibrated_value: Double) with Effect(kind = "pure") with Cost(tier = "free") prompt {
         system "You are a sensor validation agent that checks readings against config."
         template "Validate reading {reading} against config {sensor_config}"
         model "claude-sonnet-4-20250514"
@@ -128,7 +128,7 @@ namespace monitor.Analysis {
         threshold_high: Double,
         critical_low: Double,
         critical_high: Double
-    ) => (result: AnomalyResult) prompt {
+    ) => (result: AnomalyResult) with Effect(kind = "pure") with Cost(tier = "free") prompt {
         system "You are an anomaly detection agent that checks readings against thresholds."
         template "Detect anomaly for {reading} with thresholds low={threshold_low} high={threshold_high} crit_low={critical_low} crit_high={critical_high}"
         model "claude-sonnet-4-20250514"
@@ -139,7 +139,7 @@ namespace monitor.Analysis {
         anomaly: Json,
         sensor_id: String,
         override_config: Json = null
-    ) => (alert: AlertPayload) prompt {
+    ) => (alert: AlertPayload) with Effect(kind = "pure") with Cost(tier = "free") prompt {
         system "You are an alert classification agent that assigns priority and channel."
         template "Classify alert for sensor {sensor_id}: anomaly={anomaly}, override={override_config}"
         model "claude-sonnet-4-20250514"
@@ -158,7 +158,7 @@ namespace monitor.Reporting {
         sensor_id: String,
         anomaly_result: Json,
         reading: Json
-    ) => (report: DiagnosticReport) prompt {
+    ) => (report: DiagnosticReport) with Effect(kind = "pure") with Cost(tier = "cheap") prompt {
         system "You are a diagnostic agent that assesses sensor health."
         template "Run diagnostics for sensor {sensor_id}: anomaly={anomaly_result}"
         model "claude-sonnet-4-20250514"
@@ -169,7 +169,7 @@ namespace monitor.Reporting {
         sensor_id: String,
         diagnostic: Json,
         alert: Json
-    ) => (summary: MonitoringSummary) prompt {
+    ) => (summary: MonitoringSummary) with Effect(kind = "pure") with Cost(tier = "free") prompt {
         system "You are a summary agent that aggregates monitoring results."
         template "Summarize monitoring for sensor {sensor_id}: diagnostic={diagnostic}, alert={alert}"
         model "claude-sonnet-4-20250514"
