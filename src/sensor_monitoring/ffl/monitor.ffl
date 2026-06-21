@@ -202,9 +202,8 @@ namespace monitor.workflows {
         cfg = ThresholdConfig(low = -10.0, high = 50.0, critical_low = -40.0, critical_high = 80.0)
         ingest = IngestReading(sensor_id = $.sensor_id, value = $.value, unit = $.unit, last_reading = null) with RetryPolicy(max_retries = 5, backoff_ms = 2000) as retry
         validate = ValidateReading(reading = ingest.reading, sensor_config = $.sensor_configs[ingest.reading.sensor_id])
-        detect = DetectAnomaly(reading = ingest.reading, threshold_low = cfg.low, threshold_high = cfg.high, critical_low = cfg.critical_low, critical_high = cfg.critical_high) andThen {
-            classify = ClassifyAlert(anomaly = detect.result, sensor_id = $.sensor_id, override_config = null) with AlertConfig(channel = "alerts", escalate = true) as alertcfg
-        }
+        detect = DetectAnomaly(reading = ingest.reading, threshold_low = cfg.low, threshold_high = cfg.high, critical_low = cfg.critical_low, critical_high = cfg.critical_high)
+        classify = ClassifyAlert(anomaly = detect.result, sensor_id = $.sensor_id, override_config = null) with AlertConfig(channel = "alerts", escalate = true) as alertcfg
         diag = RunDiagnostics(sensor_id = $.sensor_id, anomaly_result = detect.result, reading = ingest.reading)
         summ = GenerateSummary(sensor_id = $.sensor_id, diagnostic = diag.report, alert = classify.alert)
         yield MonitorSensors(summary = summ.summary, report = "Sensor " ++ $.sensor_id ++ " status: " ++ diag.report.health_status)
