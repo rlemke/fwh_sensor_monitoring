@@ -5,6 +5,21 @@ that ingests, validates, analyzes, and reports on time-series sensor
 readings using six event facets backed by a small deterministic-stub
 library.
 
+## Feature specifications
+
+Every feature has a spec in [**`docs/`**](docs/README.md) — how it works,
+whether/how it **fans out**, its **data & fields**, the **external
+libraries/binaries** it uses, its **facets & workflows**, and its **cache/output**
+(there is none — the example runs fully offline). Start with the flagship
+[**Workflows & FFL feature showcase**](docs/workflows.md); the full index is in
+[`docs/README.md`](docs/README.md).
+
+| Area | Specs |
+|------|-------|
+| **Flagship & composition** | [workflows](docs/workflows.md) |
+| **Pipeline stages** | [ingestion](docs/ingestion.md) · [analysis](docs/analysis.md) · [reporting](docs/reporting.md) |
+| **Package plumbing** | [tools-and-lib](docs/tools-and-lib.md) · [runner-and-catalog](docs/runner-and-catalog.md) |
+
 The example is also the first showcase of:
 
 - Unary negation in FFL expressions (`-10.0`, `-40.0`)
