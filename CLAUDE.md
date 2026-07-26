@@ -4,14 +4,14 @@ This repository is a **standalone Facetwork example package**. The Facetwork
 platform (workflow compiler + runtime) lives at
 `/Users/ralph_lemke/facetwork`; this repo only contains the sensor-
 monitoring-specific FFL, handlers, and tools. The two are wired
-together via the `facetwork.examples` entry point in `pyproject.toml`.
+together via the `facetwork.domains` entry point in `pyproject.toml`.
 
 ## Quick orientation
 
 ```
 fwh_sensor_monitoring/
-├── pyproject.toml                       # declares the facetwork.examples entry point
-├── src/sensor_monitoring/__init__.py    # exports `example: ExamplePackage`
+├── pyproject.toml                       # declares the facetwork.domains entry point
+├── src/sensor_monitoring/__init__.py    # exports `domain: DomainPackage`
 ├── src/sensor_monitoring/handlers/      # 3 subpackages + shared/ shim
 ├── src/sensor_monitoring/ffl/           # monitor.ffl
 ├── src/sensor_monitoring/tools/         # CLI utilities + _lib/ (sensor stubs)
@@ -26,8 +26,8 @@ fwh_sensor_monitoring/
 pip install -e .
 
 # From a Facetwork checkout:
-scripts/seed-examples --include sensor-monitoring
-scripts/start-runner --example sensor-monitoring -- --log-format text
+fw ffl seed --include sensor-monitoring
+fw runner start --domain sensor-monitoring -- --log-format text
 
 # Run as a standalone agent
 PYTHONPATH=src python agent_registry.py    # RegistryRunner (primary entry point)
@@ -93,7 +93,7 @@ transparently.
 4. Add the handler to the right `handlers/<domain>/<name>_handlers.py`
    and wire it into `_DISPATCH`.
 5. Drop the FFL declaration into `src/sensor_monitoring/ffl/`.
-6. Re-run `scripts/seed-examples --include sensor-monitoring`.
+6. Re-run `fw ffl seed --include sensor-monitoring`.
 
 ## Code review checklist
 

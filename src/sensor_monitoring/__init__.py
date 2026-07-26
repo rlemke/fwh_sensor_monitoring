@@ -18,8 +18,8 @@ point declared in ``pyproject.toml``::
     sensor-monitoring = "sensor_monitoring:domain"
 
 Once ``pip install -e .`` has been run from this repository, Facetwork's
-``scripts/start-runner --example sensor-monitoring`` and
-``scripts/seed-examples`` will pick this package up automatically.
+``fw runner start --domain sensor-monitoring`` and
+``fw ffl seed`` will pick this package up automatically.
 """
 
 from __future__ import annotations

@@ -38,9 +38,9 @@ Six event facets across three FFL namespaces:
 
 All handler logic is deterministic — runs fully offline.
 
-Discovered by the Facetwork runner via the `facetwork.examples` entry point
+Discovered by the Facetwork runner via the `facetwork.domains` entry point
 declared in `pyproject.toml`. After `pip install -e .`, Facetwork's
-`scripts/start-runner --example sensor-monitoring` and `scripts/seed-examples`
+`fw runner start --domain sensor-monitoring` and `fw ffl seed`
 pick this package up automatically.
 
 ## Install
@@ -54,8 +54,8 @@ pip install -e .
 ## Run from a Facetwork checkout
 
 ```bash
-scripts/seed-examples --include sensor-monitoring           # one-time, seeds FFL
-scripts/start-runner --example sensor-monitoring -- --log-format text
+fw ffl seed --include sensor-monitoring           # one-time, seeds FFL
+fw runner start --domain sensor-monitoring -- --log-format text
 ```
 
 ## Run a single operation from the command line
@@ -79,7 +79,7 @@ human-readable summary on stderr.
 
 ```
 fwh_sensor_monitoring/
-├── pyproject.toml                  # facetwork.examples entry point
+├── pyproject.toml                  # facetwork.domains entry point
 ├── README.md
 ├── CLAUDE.md                       # guidance for Claude Code in this repo
 ├── USER_GUIDE.md                   # human-facing walkthrough
@@ -89,7 +89,7 @@ fwh_sensor_monitoring/
 ├── conftest.py                     # pytest fixtures
 ├── tests/                          # repo-level integration tests
 └── src/sensor_monitoring/
-    ├── __init__.py                 # exports `example: ExamplePackage`
+    ├── __init__.py                 # exports `domain: DomainPackage`
     ├── handlers/                   # 3 event-facet subpackages + shared/ shim
     │   ├── ingestion/              # IngestReading, ValidateReading
     │   ├── analysis/               # DetectAnomaly, ClassifyAlert
