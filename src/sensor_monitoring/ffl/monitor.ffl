@@ -223,9 +223,9 @@ namespace monitor.workflows {
         report: String,
         summary: String
     ) andThen {
-        batch_cfg = ThresholdConfig(low = -10.0, high = 50.0, critical_low = -40.0, critical_high = 80.0) andThen foreach sid in $.sensor_ids {
-            reading = IngestReading(sensor_id = $.sid, value = $.default_value, unit = $.unit, last_reading = null) with RetryPolicy(max_retries = 3) as retry andThen {
-                anomaly = DetectAnomaly(reading = reading.reading, threshold_low = batch_cfg.low, threshold_high = batch_cfg.high, critical_low = batch_cfg.critical_low, critical_high = batch_cfg.critical_high)
+        batch_cfg = ThresholdConfig(low = -10.0, high = 50.0, critical_low = -40.0, critical_high = 80.0) andThen foreach sid in $$.sensor_ids {
+            reading = IngestReading(sensor_id = $.sid, value = $$.default_value, unit = $$.unit, last_reading = null) with RetryPolicy(max_retries = 3) as retry andThen {
+                anomaly = DetectAnomaly(reading = $.reading, threshold_low = $$.low, threshold_high = $$.high, critical_low = $$.critical_low, critical_high = $$.critical_high)
             }
             yield BatchMonitor(summary = "Processed sensor: " ++ $.sid)
         }

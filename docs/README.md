@@ -34,6 +34,7 @@ exercise unary negation, null literals, computed map indexing, and mixin aliases
 |------|----------------|
 | [tools-and-lib.md](tools-and-lib.md) | The tools/handlers/`_lib` pattern: six deterministic-stub CLIs + `.sh` wrappers, the `handlers/shared/sensor_utils.py` shim, and the `./sensor` domain dispatcher. |
 | [runner-and-catalog.md](runner-and-catalog.md) | The `facetwork.domains` entry point + `DomainPackage`, RegistryRunner-first agent entry points (`agent_registry.py` / `agent.py`), `_DISPATCH`/registration wiring, and the `catalog.yaml` capability manifest. |
+| [ffl-examples.md](ffl-examples.md) | **Usage patterns.** A gallery of complete, compile-checked FFL examples over these facets — schema instantiation, the full per-sensor chain, `foreach` batches, `when` on severity, custom-mixin overrides, `catch`. |
 
 ---
 

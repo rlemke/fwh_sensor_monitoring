@@ -5,6 +5,47 @@ that ingests, validates, analyzes, and reports on time-series sensor
 readings using six event facets backed by a small deterministic-stub
 library.
 
+## FFL at a glance
+
+The domain is driven from [FFL](https://github.com/rlemke/facetwork/blob/main/docs/reference/language/grammar.md),
+Facetwork's workflow language. A step is `name = Facet(args)`, and each step that
+references the previous one is ordered behind it:
+
+```ffl
+namespace my.monitor {
+
+    use monitor.Ingestion
+    use monitor.Analysis
+
+    /** One reading → one anomaly verdict. */
+    workflow CheckOne(sensor_id: String, value: Double, unit: String = "celsius") => (severity: String) andThen {
+
+        reading = monitor.Ingestion.IngestReading(
+            sensor_id = $.sensor_id, value = $.value, unit = $.unit)
+
+        anomaly = monitor.Analysis.DetectAnomaly(
+            reading = reading.reading,
+            threshold_low = -10.0, threshold_high = 50.0,
+            critical_low = -40.0, critical_high = 80.0)
+
+        yield CheckOne(severity = anomaly.result.severity)
+    }
+}
+```
+
+```bash
+fw ffl run --primary my.ffl --library src/sensor_monitoring/ffl/monitor.ffl \
+  --workflow my.monitor.CheckOne \
+  --inputs '{"sensor_id": "temp-01", "value": 62.0}'
+```
+
+📖 **[docs/ffl-examples.md](docs/ffl-examples.md)** — the full example gallery:
+schema instantiation, the full ingest→detect→classify→diagnose chain, `foreach`
+fan-out over sensors, `when` branching on severity, this domain's custom mixins
+(`RetryPolicy`/`AlertConfig`, incl. `as` aliases) at a call site, and `catch`.
+Every snippet there is compile-checked — this domain is a good language showcase
+because nothing in it touches the network.
+
 ## Feature specifications
 
 Every feature has a spec in [**`docs/`**](docs/README.md) — how it works,
