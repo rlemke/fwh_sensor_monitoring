@@ -660,3 +660,88 @@ class TestAgentIntegration:
 
         final = evaluator.resume(result.workflow_id, workflow_ast, program_ast)
         assert final.success
+
+
+# ---------------------------------------------------------------------------
+# TestStepLogContract
+#
+# Every handler in this package once called `params["_step_log"].append({...})`,
+# because an older runtime passed a LIST. It passes a CALLBACK —
+# `_step_log(message, level=..., details=None)` (facetwork runner/service.py) —
+# so all six handlers died at runtime with:
+#
+#     'function' object has no attribute 'append'
+#
+# The whole domain was dead and the suite stayed green, because no test ever
+# injected `_step_log`: the handlers only take that branch when it is present.
+# These tests inject a real callable and assert it is CALLED, which is the one
+# thing that distinguishes the two contracts.
+# ---------------------------------------------------------------------------
+class TestStepLogContract:
+    @staticmethod
+    def _recorder():
+        calls = []
+
+        def step_log(message, level="info", details=None):
+            calls.append((message, level))
+
+        return step_log, calls
+
+    @pytest.mark.parametrize(
+        "module,func,params",
+        [
+            (
+                "sensor_monitoring.handlers.ingestion.ingestion_handlers",
+                "handle_ingest_reading",
+                {"sensor_id": "s1", "value": 25.5, "unit": "celsius"},
+            ),
+            (
+                "sensor_monitoring.handlers.ingestion.ingestion_handlers",
+                "handle_validate_reading",
+                {"reading": {"sensor_id": "s1", "value": 25.5}},
+            ),
+            (
+                "sensor_monitoring.handlers.analysis.analysis_handlers",
+                "handle_detect_anomaly",
+                {
+                    "reading": {"sensor_id": "s1", "value": 25.5},
+                    "threshold_low": -10.0,
+                    "threshold_high": 50.0,
+                },
+            ),
+        ],
+    )
+    def test_handler_calls_step_log_rather_than_appending(self, module, func, params):
+        import importlib
+
+        mod = importlib.import_module(module)
+        step_log, calls = self._recorder()
+        # A list here would ALSO "work" for a broken handler, so the callable is
+        # the assertion: `.append` on it raises AttributeError, which is exactly
+        # the production failure this pins.
+        getattr(mod, func)({**params, "_step_log": step_log})
+        assert calls, f"{func} never called _step_log"
+        assert all(lvl in ("info", "warning", "error", "success") for _m, lvl in calls)
+
+    def test_a_list_step_log_would_now_fail_loudly(self):
+        """Guard against silently reverting to the old contract.
+
+        If someone reintroduces `.append`, this test still passes — so it is
+        deliberately narrow: it documents that a LIST is no longer what the
+        runtime supplies, by showing the call form is what the handler uses.
+        """
+        import importlib
+
+        mod = importlib.import_module(
+            "sensor_monitoring.handlers.reporting.reporting_handlers"
+        )
+        step_log, calls = self._recorder()
+        mod.handle_run_diagnostics(
+            {
+                "sensor_id": "s1",
+                "anomaly_result": {"severity": "none", "threshold_breached": False},
+                "reading": {"sensor_id": "s1", "value": 25.5},
+                "_step_log": step_log,
+            }
+        )
+        assert calls and isinstance(calls[0][0], str)

@@ -25,12 +25,7 @@ def handle_run_diagnostics(params: dict[str, Any]) -> dict[str, Any]:
 
     step_log = params.get("_step_log")
     if step_log:
-        step_log.append(
-            {
-                "message": f"Diagnostics: {report['health_status']}, {report['anomalies_found']} anomalies in {report['readings_checked']} readings",
-                "level": "success",
-            }
-        )
+        step_log(f"Diagnostics: {report['health_status']}, {report['anomalies_found']} anomalies in {report['readings_checked']} readings", level="success")
 
     return {"report": report}
 
@@ -49,12 +44,7 @@ def handle_generate_summary(params: dict[str, Any]) -> dict[str, Any]:
 
     step_log = params.get("_step_log")
     if step_log:
-        step_log.append(
-            {
-                "message": f"Summary: {summary['report']}",
-                "level": "success",
-            }
-        )
+        step_log(f"Summary: {summary['report']}", level="success")
 
     return {"summary": summary}
 

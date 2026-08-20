@@ -30,7 +30,7 @@ def handle_ingest_reading(params: dict[str, Any]) -> dict[str, Any]:
 
     step_log = params.get("_step_log")
     if step_log:
-        step_log.append({"message": f"Ingested {sensor_id}: quality={quality}", "level": "success"})
+        step_log(f"Ingested {sensor_id}: quality={quality}", level="success")
 
     return {"reading": reading, "quality": quality}
 
@@ -51,12 +51,7 @@ def handle_validate_reading(params: dict[str, Any]) -> dict[str, Any]:
 
     step_log = params.get("_step_log")
     if step_log:
-        step_log.append(
-            {
-                "message": f"Validated: valid={valid}, calibrated={calibrated_value}",
-                "level": "success",
-            }
-        )
+        step_log(f"Validated: valid={valid}, calibrated={calibrated_value}", level="success")
 
     return {"valid": valid, "calibrated_value": calibrated_value}
 
