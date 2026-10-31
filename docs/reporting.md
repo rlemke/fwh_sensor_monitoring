@@ -33,8 +33,8 @@ Two stubs in `tools/_lib/sensor.py`:
    is hard-coded to 1 (single-sensor summary). Returns a `MonitoringSummary` dict.
 
 The handlers (`handle_run_diagnostics`, `handle_generate_summary`) `json.loads(...)`
-any string-encoded `anomaly_result` / `reading` / `diagnostic` / `alert`, append a
-`_step_log` line, and return the FFL-shaped dict.
+any string-encoded `anomaly_result` / `reading` / `diagnostic` / `alert`, emit a
+line through the `_step_log` callback, and return the FFL-shaped dict.
 
 ## Fan-out
 

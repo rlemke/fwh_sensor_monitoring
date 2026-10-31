@@ -36,7 +36,7 @@ Two independent steps, each backed by one deterministic stub in
 The FFL handlers (`handle_ingest_reading`, `handle_validate_reading`) wrap these:
 they coerce string inputs to the right types (`float(value)`,
 `json.loads(...)` for `reading` / `sensor_config` / `last_reading`), treat the
-literal string `"null"` as `None`, append a `_step_log` line, and return the dict
+literal string `"null"` as `None`, emit a line through the `_step_log` callback (`step_log(msg, level=…)`), and return the dict
 shape the FFL return clause expects. Both the CLI and the handler call the **same**
 stub via the `handlers/shared/sensor_utils.py` shim — see [tools-and-lib](tools-and-lib.md).
 

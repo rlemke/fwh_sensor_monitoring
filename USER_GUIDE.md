@@ -137,16 +137,16 @@ All handlers use deterministic stubs (`sensor_utils.py`) that produce reproducib
 
 ```bash
 # Syntax check
-python3 -m afl.cli examples/sensor-monitoring/ffl/monitor.ffl --check
+fw ffl compile --check --primary src/sensor_monitoring/ffl/monitor.ffl
 
 # Run tests
-python3 -m pytest examples/sensor-monitoring/tests/ -v
+python3 -m pytest tests/ -v
 
 # Run agent (RegistryRunner — recommended)
-PYTHONPATH=. python3 examples/sensor-monitoring/agent_registry.py
+PYTHONPATH=src python3 agent_registry.py
 
 # Run agent (AgentPoller — alternative)
-PYTHONPATH=. python3 examples/sensor-monitoring/agent.py
+PYTHONPATH=src python3 agent.py
 ```
 
 ## Adapting for Your Use Case

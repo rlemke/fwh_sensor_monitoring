@@ -35,7 +35,7 @@ Two stubs in `tools/_lib/sensor.py`:
 
 The handlers (`handle_detect_anomaly`, `handle_classify_alert`) coerce string
 inputs (`float(...)` for each threshold, `json.loads(...)` for `reading` /
-`anomaly` / `override_config`), map `"null"` -> `None`, log a `_step_log` line, and
+`anomaly` / `override_config`), map `"null"` -> `None`, emit a line through the `_step_log` callback, and
 return the FFL-shaped dict.
 
 ## Fan-out

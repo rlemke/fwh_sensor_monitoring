@@ -28,8 +28,7 @@ sensor-monitoring = "sensor_monitoring:domain"
 `src/sensor_monitoring/__init__.py` exports `domain = DomainPackage(name=
 "sensor-monitoring", ffl_dir=<pkg>/ffl, register_handlers=register_all_registry_handlers)`.
 After `pip install -e .`, Facetwork's `fw runner start --domain sensor-monitoring`
-and `fw ffl seed` (older `scripts/start-runner --example` / `scripts/seed-examples`)
-pick it up via entry-point discovery. `ffl_dir` points at `ffl/monitor.ffl` (packaged
+and `fw ffl seed` pick it up via entry-point discovery. `ffl_dir` points at `ffl/monitor.ffl` (packaged
 via `[tool.setuptools.package-data]`).
 
 **Handler registration.** `handlers/__init__.py` exposes two aggregators:
@@ -100,13 +99,10 @@ the package writes no cache/output artifacts.
 
 ## Gotchas & notes
 
-- **Stale "examples" naming in the human docs.** `pyproject.toml` declares the
-  **`facetwork.domains`** entry point and `__init__.py` exports a **`DomainPackage`**
-  named `domain`. The repo `README.md` / `CLAUDE.md` still say "facetwork.examples
-  entry point" / "exports `example: ExamplePackage`" and reference the old
-  `scripts/start-runner --example` / `scripts/seed-examples` commands — the code is
-  the source of truth (`--domain sensor-monitoring`, `fw ffl seed`). Docstrings in
-  `__init__.py` also mix "examples" prose with the correct `facetwork.domains` block.
+- **Domain, not example.** `pyproject.toml` declares the **`facetwork.domains`**
+  entry point and `__init__.py` exports a **`DomainPackage`** named `domain`, so the
+  commands are `fw runner start --domain sensor-monitoring` and `fw ffl seed` (the old
+  `scripts/<name>` paths no longer exist).
 - **RegistryRunner is primary; AgentPoller is legacy.** Prefer `agent_registry.py`.
   Both share the same `_DISPATCH` tables via different `register_*` shims, so they
   cannot drift.
